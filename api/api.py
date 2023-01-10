@@ -15,10 +15,15 @@ def startup_event():
 @app.post('/init')
 def init():
     conv_id = godel.init_conv()
-    return conv_id
+    return {
+        'conv_id': conv_id
+    }
 
 @app.post('/generate')
 def init(conv_id: str, prompt: str):
     conv_id = uuid.UUID(conv_id)
     response = godel.get_response(conv_id, prompt)
-    return response
+    return {
+        'conv_id': conv_id,
+        'response': response
+    }

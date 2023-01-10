@@ -12,11 +12,8 @@ class Classifier:
         for prompt in prompts:
             input = self.tokenizer.encode(context + '<|endoftext|>' + prompt, return_tensors="pt")
             result = self.model(input, return_dict=True)
-            print(prompt)
             current_score = torch.sigmoid(result.logits).squeeze().item()
-            print(current_score)
             if current_score > highest_score:
                 highest_score = current_score
                 best_prompt = prompt
-        print(f'RETURNING:\n {best_prompt}\nSCORE: {highest_score}\n')
         return best_prompt
