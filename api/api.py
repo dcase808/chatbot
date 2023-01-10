@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, HTTPException, status
 from models.godel.Godel import Godel
 from models.stablediffusion.StableDiffusion import StableDiffusion
+import torch
 import uuid
 import io
 
@@ -11,11 +12,13 @@ TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 app = FastAPI()
 godel = Godel('Instruction: given a dialog context, you need to response empathically. ')
 stablediffusion = StableDiffusion()
+use_cuda = torch.cuda.is_available()
 
 @app.on_event('startup')
 def startup_event():
-    #godel.load_model(MODEL, CLASSIFIER_MODEL)
-    stablediffusion.load_model(TXT2IMG_MODEL)
+    godel.load_model(MODEL, CLASSIFIER_MODEL)
+    if use_cuda:
+        stablediffusion.load_model(TXT2IMG_MODEL)
 
 @app.post('/init')
 def init():
@@ -35,6 +38,8 @@ def generate(conv_id: str, prompt: str):
 
 @app.post('/txt2img', responses = {200: {"content": {"image/png": {}}}}, response_class=Response)
 def txt2img(prompt: str):
+    if not use_cuda:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="no CUDA device detected")
     image = stablediffusion.generate_img(prompt)
     image_bytes = io.BytesIO()
     image.save(image_bytes, format='PNG')
