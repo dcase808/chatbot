@@ -1,5 +1,5 @@
 {
-	"name": "chatbot",
+	"name": "interface",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
