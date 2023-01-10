@@ -24,7 +24,7 @@ class Godel:
         query = f"{self.instruction} [CONTEXT] {dialog}"
         input_ids = self.tokenizer(f"{query}" + self.tokenizer.eos_token, return_tensors="pt").input_ids
         output_list = []
-        for _ in range(10):
+        for _ in range(5):
             outputs = self.model.generate(input_ids, max_length=128, min_length=8, top_p=0.9, do_sample=True)
             output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             output_list.append(output)
