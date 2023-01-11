@@ -1,1 +1,1 @@
-# Chatbot built using Microsoft GODEL and DialogRPT models
+# Chatbot built using Facebook BlenderBot and DialogRPT models
