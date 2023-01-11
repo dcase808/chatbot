@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Response, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from models.godel.Godel import Godel
 from models.stablediffusion.StableDiffusion import StableDiffusion
 from models.blenderbot.BlenderBot import BlenderBot
@@ -6,7 +7,7 @@ import torch
 import uuid
 import io
 
-MODEL = 'blenderbot-400M-distill'
+MODEL = 'facebook/blenderbot-400M-distill'
 TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 
 app = FastAPI()
@@ -14,13 +15,20 @@ blenderbot = BlenderBot()
 stablediffusion = StableDiffusion()
 use_cuda = torch.cuda.is_available()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_headers=['*'],
+    allow_methods=['*']
+)
+
 @app.on_event('startup')
 def startup_event():
     blenderbot.load_model(MODEL)
     if use_cuda:
         stablediffusion.load_model(TXT2IMG_MODEL)
 
-@app.post('/init')
+@app.get('/init')
 def init():
     conv_id = blenderbot.init_conv()
     return {
