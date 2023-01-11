@@ -1,1 +1,1 @@
-# Chatbot built using Facebook BlenderBot and DialogRPT models
+# Chatbot built using Facebook BlenderBot and Stability Diffusion models
