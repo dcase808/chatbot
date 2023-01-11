@@ -2,9 +2,8 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Conversation, Con
 import uuid
 
 class BlenderBot:
-    def __init__(self, instruction):
+    def __init__(self):
         self.conversations = {}
-        self.instruction = instruction
     
     def load_model(self, model):
         self.tokenizer = AutoTokenizer.from_pretrained(model)

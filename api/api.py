@@ -1,28 +1,28 @@
 from fastapi import FastAPI, Response, HTTPException, status
 from models.godel.Godel import Godel
 from models.stablediffusion.StableDiffusion import StableDiffusion
+from models.blenderbot.BlenderBot import BlenderBot
 import torch
 import uuid
 import io
 
-MODEL = 'microsoft/GODEL-v1_1-large-seq2seq'
-CLASSIFIER_MODEL = 'microsoft/DialogRPT-human-vs-rand'
+MODEL = 'blenderbot-400M-distill'
 TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 
 app = FastAPI()
-godel = Godel('Instruction: given a dialog context, you need to response empathically. ')
+blenderbot = BlenderBot()
 stablediffusion = StableDiffusion()
 use_cuda = torch.cuda.is_available()
 
 @app.on_event('startup')
 def startup_event():
-    godel.load_model(MODEL, CLASSIFIER_MODEL)
+    blenderbot.load_model(MODEL)
     if use_cuda:
         stablediffusion.load_model(TXT2IMG_MODEL)
 
 @app.post('/init')
 def init():
-    conv_id = godel.init_conv()
+    conv_id = blenderbot.init_conv()
     return {
         'conv_id': conv_id
     }
@@ -30,7 +30,7 @@ def init():
 @app.post('/generate')
 def generate(conv_id: str, prompt: str):
     conv_id = uuid.UUID(conv_id)
-    response = godel.get_response(conv_id, prompt)
+    response = blenderbot.get_response(conv_id, prompt)
     return {
         'conv_id': conv_id,
         'response': response
