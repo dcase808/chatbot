@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Card, FormGroup, Input, Button } from 'sveltestrap/src'
 
-	const endpoint = 'http://localhost:9973'
+	const endpoint = 'http://localhost:9971'
 
 	let prompt = ''
 
