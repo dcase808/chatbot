@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Card, FormGroup, Input, Button } from 'sveltestrap/src'
 
-	const endpoint = 'http://localhost:9971'
+	const endpoint = 'http://api.koczulap.pl'
 
 	let prompt = ''
 
