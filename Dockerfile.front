@@ -1,0 +1,10 @@
+FROM node
+
+RUN mkdir /app
+WORKDIR /app
+COPY interface/package.json ./
+COPY interface/package-lock.json ./
+RUN npm install
+COPY interface ./
+
+CMD ["npm", "run", "dev", "--", "--host"]
