@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models.godel.Godel import Godel
-from models.stablediffusion.StableDiffusion import StableDiffusion
 from models.blenderbot.BlenderBot import BlenderBot
 import torch
 import uuid
@@ -12,8 +11,10 @@ TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 
 app = FastAPI()
 blenderbot = BlenderBot()
-stablediffusion = StableDiffusion()
 use_cuda = torch.cuda.is_available()
+if use_cuda:
+    from models.stablediffusion.StableDiffusion import StableDiffusion
+    stablediffusion = StableDiffusion()
 
 app.add_middleware(
     CORSMiddleware,
