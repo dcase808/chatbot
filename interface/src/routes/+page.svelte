@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Card, FormGroup, Input, Button } from 'sveltestrap/src'
+	import { Card, FormGroup, Input, Button, ButtonGroup } from 'sveltestrap/src'
 
 	const endpoint = 'https://api.koczulap.pl'
 
@@ -19,7 +19,7 @@
 	})
 
 	async function doPost () {
-		button_enabled = false
+		//button_enabled = false
 		messages.push(prompt)
 		messages = messages
 		const res = await fetch(endpoint + '/generate' + '?conv_id=' + convId +'&prompt=' + prompt, {
@@ -33,7 +33,7 @@
 		button_enabled = true
 	}
 	async function genImage () {
-		button_enabled = false
+		//button_enabled = false
 		messages.push('Dream about your last message')
 		messages = messages
 		const res = await fetch(endpoint + '/txt2img' + '?conv_id=' + convId +'&prompt=' + messages[messages.length - 1], {
@@ -76,13 +76,15 @@
 			<Input type="search" name="text" id="exampleText" placeholder='Say hello!' bind:value={prompt} />
 		</FormGroup>
 	</div>
-	{#if button_enabled == true}
-		<Button on:click={doPost}>Send</Button>
-		<Button on:click={genImage}>Dream</Button>
-	{:else}
-		<Button disabled on:click={doPost}>Send</Button>
-		<Button disabled on:click={genImage}>Dream</Button>
-	{/if}
+	<ButtonGroup>
+		{#if button_enabled == true}
+			<Button on:click={doPost}>Send</Button>
+			<Button on:click={genImage}>Dream</Button>
+		{:else}
+			<Button disabled on:click={doPost}>Send</Button>
+			<Button disabled on:click={genImage}>Dream</Button>
+		{/if}
+	</ButtonGroup>
 </section>
 
 <style>
@@ -118,9 +120,10 @@
 	#chat {
 		width: 80%;
 		max-width: 80%;
-		height: 100%;
+		height: 10px;
 		flex-grow: 1;
-		overflow: auto;
+		overflow-y: scroll;
+		scroll-snap-type: y proximity;
 	}
 
 </style>
