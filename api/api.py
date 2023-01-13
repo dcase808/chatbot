@@ -13,7 +13,7 @@ blenderbot = BlenderBot()
 use_cuda = torch.cuda.is_available()
 if use_cuda:
     from models.stablediffusion.StableDiffusion import StableDiffusion
-stablediffusion = StableDiffusion()
+    stablediffusion = StableDiffusion()
 
 app.add_middleware(
     CORSMiddleware,
