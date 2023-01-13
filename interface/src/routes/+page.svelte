@@ -8,11 +8,13 @@
 	let messages = []
 	let button_enabled = false
 	let dream_enabled = false
+	let isLoaded = false
 
 	onMount(async function() {
 		let response = await fetch(endpoint + '/init')
 		let data = await response.json()
 		convId = data['conv_id']
+		isLoaded = true
 		button_enabled = true
 		response = await fetch(endpoint + '/functionality')
 		data = await response.json()
@@ -91,7 +93,7 @@
 				{/if}
 			{/each}
 			<div class='bot_msg'>
-				{#if button_enabled == false}
+				{#if isLoaded == true && button_enabled == false}
 					<Card body color='info'><Spinner size='sm'/></Card>
 				{/if}
 			</div>
@@ -107,13 +109,13 @@
 					{#if dream_enabled == true}
 						<Button on:click={genImage}><Icon name="image-fill"/></Button>
 					{:else}
-						<span id='dream-btn'><Button disabled id='dream-btn' on:click={genImage}>Dream</Button></span>
+						<span id='dream-btn'><Button disabled id='dream-btn' on:click={genImage}><Icon name="image-fill"/></Button></span>
 						<Popover
 							trigger="hover"
 							placement="top"
 							target="dream-btn"
 							>
-							No GPU backend detected
+							Image generation not available, GPU-less backend detected
 						</Popover>
 					{/if}
 				{:else}
