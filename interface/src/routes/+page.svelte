@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Card, FormGroup, Input, Button, ButtonGroup } from 'sveltestrap/src'
+	import { Card, Input, Button, ButtonGroup, InputGroup, Spinner } from 'sveltestrap/src'
 
 	const endpoint = 'https://api.koczulap.pl'
 
@@ -19,10 +19,13 @@
 	})
 
 	async function doPost () {
-		//button_enabled = false
+		button_enabled = false
 		messages.push(prompt)
+		let msg = prompt
+		prompt = ''
 		messages = messages
-		const res = await fetch(endpoint + '/generate' + '?conv_id=' + convId +'&prompt=' + prompt, {
+		console.log(msg)
+		const res = await fetch(endpoint + '/generate' + '?conv_id=' + convId +'&prompt=' + msg, {
 			method: 'POST',
 		})
 		
@@ -33,7 +36,7 @@
 		button_enabled = true
 	}
 	async function genImage () {
-		//button_enabled = false
+		button_enabled = false
 		messages.push('Dream about your last message')
 		messages = messages
 		const res = await fetch(endpoint + '/txt2img' + '?conv_id=' + convId +'&prompt=' + messages[messages.length - 1], {
@@ -72,19 +75,19 @@
 
 	</div>
 	<div id='send_msg'>
-		<FormGroup>
-			<Input type="search" name="text" id="exampleText" placeholder='Say hello!' bind:value={prompt} />
-		</FormGroup>
-	</div>
-	<ButtonGroup>
-		{#if button_enabled == true}
-			<Button on:click={doPost}>Send</Button>
-			<Button on:click={genImage}>Dream</Button>
-		{:else}
-			<Button disabled on:click={doPost}>Send</Button>
-			<Button disabled on:click={genImage}>Dream</Button>
-		{/if}
-	</ButtonGroup>
+		<InputGroup>
+			<Input type="text" name="text" placeholder='Say hello!' bind:value={prompt}/>
+			<ButtonGroup>
+				{#if button_enabled == true}
+					<Button on:click={doPost}>Send</Button>
+					<Button on:click={genImage}>Dream</Button>
+				{:else}
+					<Button disabled on:click={doPost}>Send</Button>
+					<Button disabled on:click={genImage}>Dream</Button>
+				{/if}
+			</ButtonGroup>
+		</InputGroup>
+</div>
 </section>
 
 <style>
@@ -115,7 +118,7 @@
 	#send_msg {
 		margin-bottom: auto;
 		width: 80%;
-		padding-top: 10px;
+		padding-bottom: 10px;
 	}
 	#chat {
 		width: 80%;
