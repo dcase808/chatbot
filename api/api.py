@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models.blenderbot.BlenderBot import BlenderBot
-from models.stablediffusion.StableDiffusion import StableDiffusion
 import torch
 import uuid
 import io
