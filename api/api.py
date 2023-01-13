@@ -47,8 +47,6 @@ def generate(conv_id: str, prompt: str):
 
 @app.post('/txt2img', responses = {200: {"content": {"image/png": {}}}}, response_class=Response)
 def txt2img(prompt: str):
-    if not use_cuda:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="no CUDA device detected")
     image = stablediffusion.generate_img(prompt)
     image_bytes = io.BytesIO()
     image.save(image_bytes, format='PNG')
