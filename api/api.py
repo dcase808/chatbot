@@ -2,7 +2,7 @@ from fastapi import FastAPI, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models.godel.Godel import Godel
 from models.blenderbot.BlenderBot import BlenderBot
-import torch
+from models.stablediffusion.StableDiffusion import StableDiffusion
 import uuid
 import io
 
@@ -11,10 +11,7 @@ TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 
 app = FastAPI()
 blenderbot = BlenderBot()
-use_cuda = torch.cuda.is_available()
-if use_cuda:
-    from models.stablediffusion.StableDiffusion import StableDiffusion
-    stablediffusion = StableDiffusion()
+stablediffusion = StableDiffusion()
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,8 +23,7 @@ app.add_middleware(
 @app.on_event('startup')
 def startup_event():
     blenderbot.load_model(MODEL)
-    if use_cuda:
-        stablediffusion.load_model(TXT2IMG_MODEL)
+    stablediffusion.load_model(TXT2IMG_MODEL)
 
 @app.get('/init')
 def init():
