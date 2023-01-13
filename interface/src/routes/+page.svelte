@@ -26,7 +26,7 @@
 		messages = messages
 		console.log(msg)
 		const res = await fetch(endpoint + '/generate' + '?conv_id=' + convId +'&prompt=' + msg, {
-			method: 'POST',
+			method: 'GET',
 		})
 		
 		const json = await res.json()
@@ -40,7 +40,7 @@
 		messages.push('Dream about your last message')
 		messages = messages
 		const res = await fetch(endpoint + '/txt2img' + '?conv_id=' + convId +'&prompt=' + messages[messages.length - 1], {
-			method: 'POST',
+			method: 'GET',
 		})
 		const img = await res.blob()
 		messages.push(URL.createObjectURL(img))
