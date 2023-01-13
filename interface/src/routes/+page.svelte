@@ -1,26 +1,32 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Card, Input, Button, ButtonGroup, InputGroup, Spinner } from 'sveltestrap/src'
+	import { Card, Input, Button, ButtonGroup, InputGroup, Spinner, Popover } from 'sveltestrap/src'
 
 	const endpoint = 'https://api.koczulap.pl'
-
 	let prompt = ''
-
 	let convId = ''
-
 	let messages = []
-
-	let button_enabled = true
+	let button_enabled = false
+	let dream_enabled = false
 
 	onMount(async function() {
-		const response = await fetch(endpoint + '/init')
-		const data = await response.json()
+		let response = await fetch(endpoint + '/init')
+		let data = await response.json()
 		convId = data['conv_id']
+		button_enabled = true
+		response = await fetch(endpoint + '/functionality')
+		data = await response.json()
+		if (data['txt2img']) {
+			dream_enabled = true
+		}
 	})
 
 	async function doPost () {
 		button_enabled = false
-		messages.push(prompt)
+		messages.push({
+			"type": "text",
+			"data": prompt
+		})
 		let msg = prompt
 		prompt = ''
 		messages = messages
@@ -31,21 +37,28 @@
 		
 		const json = await res.json()
 		console.log(json)
-		messages.push(json['response'])
+		messages.push({
+			"type": "text",
+			"data": json['response']
+		})
 		messages = messages
 		button_enabled = true
 	}
 	async function genImage () {
 		button_enabled = false
-		messages.push('Dream about your last message')
+		messages.push({
+			"type": "text",
+			"data": 'Dream about your last message'
+		})
 		messages = messages
-		const res = await fetch(endpoint + '/txt2img' + '?conv_id=' + convId +'&prompt=' + messages[messages.length - 1], {
+		const res = await fetch(endpoint + '/txt2img' + '?conv_id=' + convId +'&prompt=' + messages[messages.length - 2]['data'], {
 			method: 'GET',
 		})
 		const img = await res.blob()
-		messages.push(URL.createObjectURL(img))
-		const imageObjectURL = URL.createObjectURL(img);
-		console.log(imageObjectURL)
+		messages.push({
+			"type": "img",
+			"data": URL.createObjectURL(img)
+		})
 		messages = messages
 		button_enabled = true
 	}
@@ -64,11 +77,15 @@
 		{#each messages as message, i}
 			{#if i % 2 == 0}
 				<div class='user_msg'>
-					<Card body color='light'>{message}</Card>
+					<Card body color='light'>{message['data']}</Card>
 				</div>
 			{:else}
 				<div class='bot_msg'>
-					<Card body color='info'>{message}</Card>
+					{#if message['type'] == "text"}
+						<Card body color='info'>{message['data']}</Card>
+					{:else}
+						<Card body color='info'><img src="{message['data']}" width="256px" alt="Generated image"></Card>
+					{/if}
 				</div>
 			{/if}
 		{/each}
@@ -79,8 +96,20 @@
 			<Input type="text" name="text" placeholder='Say hello!' bind:value={prompt}/>
 			<ButtonGroup>
 				{#if button_enabled == true}
-					<Button on:click={doPost}>Send</Button>
-					<Button on:click={genImage}>Dream</Button>
+					<Button id='eyo' on:click={doPost}>Send</Button>
+					{#if dream_enabled == true}
+						<Button on:click={genImage}>Dream</Button>
+
+					{:else}
+						<span id='dream-btn'><Button disabled id='dream-btn' on:click={genImage}>Dream</Button></span>
+						<Popover
+							trigger="hover"
+							placement="top"
+							target="dream-btn"
+							>
+							No GPU backend detected
+						</Popover>
+					{/if}
 				{:else}
 					<Button disabled on:click={doPost}>Send</Button>
 					<Button disabled on:click={genImage}>Dream</Button>

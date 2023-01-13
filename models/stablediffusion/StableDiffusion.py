@@ -16,5 +16,5 @@ class StableDiffusion:
         self.pipe.enable_attention_slicing()
     
     def generate_img(self, prompt):
-        image = self.pipe(prompt, num_inference_steps=20, width=512, height=512).images[0]
+        image = self.pipe(prompt, num_inference_steps=35, width=512, height=512).images[0]
         return image
