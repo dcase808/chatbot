@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Card, Input, Button, ButtonGroup, InputGroup, Spinner, Popover } from 'sveltestrap/src'
+	import { Card, Input, Button, ButtonGroup, InputGroup, Spinner, Popover, Icon } from 'sveltestrap/src'
 
 	const endpoint = 'https://api.koczulap.pl'
 	let prompt = ''
@@ -74,32 +74,38 @@
 <section>
 	{convId}
 	<div id='chat'>
-		{#each messages as message, i}
-			{#if i % 2 == 0}
-				<div class='user_msg'>
-					<Card body color='light'>{message['data']}</Card>
-				</div>
-			{:else}
-				<div class='bot_msg'>
-					{#if message['type'] == "text"}
-						<Card body color='info'>{message['data']}</Card>
-					{:else}
-						<Card body color='info'><img src="{message['data']}" width="256px" alt="Generated image"></Card>
-					{/if}
-				</div>
-			{/if}
-		{/each}
-
+		<div>
+			{#each messages as message, i}
+				{#if i % 2 == 0}
+					<div class='user_msg'>
+						<Card body color='light'>{message['data']}</Card>
+					</div>
+				{:else}
+					<div class='bot_msg'>
+						{#if message['type'] == "text"}
+							<Card body color='info'>{message['data']}</Card>
+						{:else}
+							<Card body color='info'><img src="{message['data']}" width="256px" alt="Generated image"></Card>
+						{/if}
+					</div>
+				{/if}
+			{/each}
+			<div class='bot_msg'>
+				{#if button_enabled == false}
+					<Card body color='info'><Spinner size='sm'/></Card>
+				{/if}
+			</div>
+		</div>
 	</div>
 	<div id='send_msg'>
 		<InputGroup>
+
 			<Input type="text" name="text" placeholder='Say hello!' bind:value={prompt}/>
 			<ButtonGroup>
 				{#if button_enabled == true}
-					<Button id='eyo' on:click={doPost}>Send</Button>
+					<Button id='eyo' on:click={doPost}><Icon name="send-fill"/></Button>
 					{#if dream_enabled == true}
-						<Button on:click={genImage}>Dream</Button>
-
+						<Button on:click={genImage}><Icon name="image-fill"/></Button>
 					{:else}
 						<span id='dream-btn'><Button disabled id='dream-btn' on:click={genImage}>Dream</Button></span>
 						<Popover
@@ -111,8 +117,8 @@
 						</Popover>
 					{/if}
 				{:else}
-					<Button disabled on:click={doPost}>Send</Button>
-					<Button disabled on:click={genImage}>Dream</Button>
+					<Button disabled on:click={doPost}><Icon name="send-fill"/></Button>
+					<Button disabled on:click={genImage}><Icon name="image-fill"/></Button>
 				{/if}
 			</ButtonGroup>
 		</InputGroup>
@@ -148,6 +154,7 @@
 		margin-bottom: auto;
 		width: 80%;
 		padding-bottom: 10px;
+		padding-top: 10px;
 	}
 	#chat {
 		width: 80%;
@@ -156,6 +163,8 @@
 		flex-grow: 1;
 		overflow-y: scroll;
 		scroll-snap-type: y proximity;
+		display: flex;
+		flex-direction: column-reverse;
 	}
 
 </style>
