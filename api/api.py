@@ -6,6 +6,7 @@ from datetime import datetime
 import torch
 import uuid
 import io
+import os
 
 MODEL = 'facebook/blenderbot-400M-distill'
 TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
@@ -13,7 +14,7 @@ TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 app = FastAPI()
 blenderbot = BlenderBot()
 use_cuda = torch.cuda.is_available()
-client = Client(host='localhost')
+client = Client(host=os.environ['CH_HOST'], port=os.environ['CH_PORT'])
 if use_cuda:
     from models.stablediffusion.StableDiffusion import StableDiffusion
     stablediffusion = StableDiffusion()
@@ -27,7 +28,6 @@ app.add_middleware(
 
 @app.on_event('startup')
 def startup_event():
-    client = Client(host='localhost')
     blenderbot.load_model(MODEL)
     #if use_cuda:
     #    stablediffusion.load_model(TXT2IMG_MODEL)
@@ -42,11 +42,12 @@ def init():
 @app.get('/generate')
 def generate(conv_id: str, prompt: str):
     conv_id = uuid.UUID(conv_id)
-    client.execute(f"INSERT INTO chatbot.messages (*) VALUES", 
-                   [(str(conv_id), prompt, datetime.now(), 'user')])
+    prompt_date = datetime.now()
     response = blenderbot.get_response(conv_id, prompt)
+    response_date = datetime.now()
     client.execute(f"INSERT INTO chatbot.messages (*) VALUES", 
-                   [(str(conv_id), response, datetime.now(), 'bot')])
+                   [(str(conv_id), prompt, prompt_date, 'user'),
+                    (str(conv_id), response, response_date, 'bot')])
     return {
         'conv_id': conv_id,
         'response': response
