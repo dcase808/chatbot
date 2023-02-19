@@ -2,7 +2,9 @@
 	import { onMount } from 'svelte';
 	import { Card, Input, Button, ButtonGroup, InputGroup, Spinner, Popover, Icon } from 'sveltestrap/src'
 
-	const endpoint = 'https://api.koczulap.pl'
+	//const endpoint = 'https://api.koczulap.pl'
+
+	const endpoint = "http://localhost:8000"
 	let prompt = ''
 	let convId = ''
 	let messages = []
@@ -24,6 +26,9 @@
 	})
 
 	async function doPost () {
+		if (prompt == '') {
+			return
+		}
 		button_enabled = false
 		messages.push({
 			"type": "text",
@@ -47,6 +52,9 @@
 		button_enabled = true
 	}
 	async function genImage () {
+		if (messages.length == 0) {
+			return
+		}
 		button_enabled = false
 		messages.push({
 			"type": "text",
@@ -102,12 +110,20 @@
 	<div id='send_msg'>
 		<InputGroup>
 
-			<Input type="text" name="text" placeholder='Say hello!' bind:value={prompt}/>
+			<Input type="text" name="text" placeholder='' bind:value={prompt}/>
 			<ButtonGroup>
 				{#if button_enabled == true}
-					<Button id='eyo' on:click={doPost}><Icon name="send-fill"/></Button>
-					{#if dream_enabled == true}
+					{#if !(prompt === '')}
+						<Button id='eyo' on:click={doPost}><Icon name="send-fill"/></Button>
+					{:else}
+						<Button disabled on:click={doPost}><Icon name="send-fill"/></Button>	
+					{/if}
+					{#if dream_enabled}
+						{#if messages.length > 0}
 						<Button on:click={genImage}><Icon name="image-fill"/></Button>
+						{:else}
+						<Button disabled on:click={genImage}><Icon name="image-fill"/></Button>
+						{/if}
 					{:else}
 						<span id='dream-btn'><Button disabled id='dream-btn' on:click={genImage}><Icon name="image-fill"/></Button></span>
 						<Popover

@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models.blenderbot.BlenderBot import BlenderBot
+from clickhouse_driver import Client
+from datetime import datetime
 import torch
 import uuid
 import io
@@ -11,6 +13,7 @@ TXT2IMG_MODEL = 'stabilityai/stable-diffusion-2'
 app = FastAPI()
 blenderbot = BlenderBot()
 use_cuda = torch.cuda.is_available()
+client = Client(host='localhost')
 if use_cuda:
     from models.stablediffusion.StableDiffusion import StableDiffusion
     stablediffusion = StableDiffusion()
@@ -24,9 +27,10 @@ app.add_middleware(
 
 @app.on_event('startup')
 def startup_event():
+    client = Client(host='localhost')
     blenderbot.load_model(MODEL)
-    if use_cuda:
-        stablediffusion.load_model(TXT2IMG_MODEL)
+    #if use_cuda:
+    #    stablediffusion.load_model(TXT2IMG_MODEL)
 
 @app.get('/init')
 def init():
@@ -38,7 +42,11 @@ def init():
 @app.get('/generate')
 def generate(conv_id: str, prompt: str):
     conv_id = uuid.UUID(conv_id)
+    client.execute(f"INSERT INTO chatbot.messages (*) VALUES", 
+                   [(str(conv_id), prompt, datetime.now(), 'user')])
     response = blenderbot.get_response(conv_id, prompt)
+    client.execute(f"INSERT INTO chatbot.messages (*) VALUES", 
+                   [(str(conv_id), response, datetime.now(), 'bot')])
     return {
         'conv_id': conv_id,
         'response': response
